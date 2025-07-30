@@ -1,2 +1,2 @@
-# Estadistica_Aplicada_2025
+# Estadística Aplicada
 Repositorio de la asignatura Estadística Aplicada 2025.
