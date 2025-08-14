@@ -1,0 +1,19 @@
+---
+title: "Estadística Descriptiva. Resumen Numérico."
+format: 
+  html:
+    grid: 
+      body-width: 950px
+editor: visual
+---
+
+
+
+```{r}
+#| code-fold: true
+#| warning: false
+#| message: false
+
+library(tidyverse)
+```
+
