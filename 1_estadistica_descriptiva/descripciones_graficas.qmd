@@ -21,6 +21,12 @@ library(scales)     # Para mejorar ejes en gráficos
 
 ```
 
+# Objetivo
+
+El objetivo de este documento es realizar un análisis exploratorio de datos (EDA) utilizando técnicas de estadística descriptiva y visualización gráfica. Nos enfocaremos en variables cuantitativas, una a la vez, aplicando diversas representaciones gráficas para comprender mejor la distribución y características de los datos.
+
+Uno de los primeros temas que exploraremos en la estadística inferencial será la estimación de parametros, por lo que es fundamental entender cómo se comportan las variables en una muestra.
+
 # Datos espaciales de Jalisco
 
 ```{r municipios}
@@ -79,7 +85,7 @@ Carguemos los datos de población y vivienda para el año 2020, filtrando por al
 datos_total <- read_csv("data/cpv_valor_14.csv", na = c("ND"))
 
 datos_total <- datos_total |> filter(año == 2020)
-#table(datos_total$indicador)
+#unique(datos_total$indicador)
 datos_seleccion <- datos_total |> 
   filter(indicador %in% c("Edad mediana", "Población total", "Porcentaje de la población derechohabiente en el IMSS", "Porcentaje de viviendas con electricidad",
   "Porcentaje de viviendas particulares habitadas que disponen de Internet"), desc_municipio != "Estatal") |> 
@@ -153,7 +159,6 @@ ggplot(datos) +
 
 ```
 
-A continuación, se presentan diferentes tipos de gráficos para visualizar la distribución de una sola variable cuantitativa, en este caso, la edad mediana de los municipios de Jalisco. Estos gráficos son útiles para comprender la distribución y características de la variable. En cada caso, es necesario que incluyas cómo se lleva a cabo cada gráfico y posteriormente, la interpretación de los resultados.
 
 ## Histograma
 
@@ -376,5 +381,387 @@ ggplot(data = datos, aes(x = edad_mediana, y = reorder(NOMGEO, edad_mediana))) +
     panel.background = element_rect(fill = "#FAFAFA", color = NA),
     plot.background = element_rect(fill = "white", color = NA)
   )
+  
+```
+
+# Derechohabientes IMSS (%)
+
+```{r}
+#| code-fold: true
+#| fig-width: 8
+#| fig-align: center
+
+
+ggplot(datos) +
+  geom_sf(aes(fill = porcentaje_de_la_poblacion_derechohabiente_en_el_imss), color = "white", size = 0.1) +
+  scale_fill_viridis_c(
+    name = "IMSS"
+  ) +
+  labs(
+    title = "Derechohabientes IMSS (%) de los Municipios de Jalisco",
+    caption = "Fuente: INEGI - Marco Geoestadístico"
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 12),
+    plot.caption = element_text(size = 10),
+    legend.position = "right"
+  )
 
 ```
+
+## Histograma
+
+```{r}
+#| code-fold: true
+#| fig-width: 7
+#| fig-align: center
+
+ggplot(datos) +
+  geom_histogram(aes(porcentaje_de_la_poblacion_derechohabiente_en_el_imss), color="black", fill = "olivedrab", boundary=min(datos$porcentaje_de_la_poblacion_derechohabiente_en_el_imss), binwidth = 5) +
+  labs(
+    title = "Derechohabientes IMSS (%)",
+    x = "Derechohabientes (%)", y = "Frecuencia"
+  ) +
+  theme_bw()+
+  theme(
+    legend.title = element_text(size=13, face="bold"),
+    legend.text = element_text(size=13),
+    plot.title = element_text(size=15, face="bold"),
+    plot.subtitle = element_text(size=13),
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12),
+    axis.title.x = element_text(face="bold", size=13),
+    axis.title.y = element_text(face="bold", size=13)
+  )
+
+```
+
+## Gráfica de densidad
+
+```{r}
+#| code-fold: true
+#| fig-width: 7
+#| fig-align: center
+
+ggplot(datos) +
+  geom_density(aes(porcentaje_de_la_poblacion_derechohabiente_en_el_imss), color="black", fill = "#122ABB", alpha=0.6) +
+  labs(
+    title = "Derechohabientes IMSS (%)",
+    x = "Derechohabientes (%)", y = "Densidad"
+  ) +
+  theme_bw()+
+  theme(
+    legend.title = element_text(size=13, face="bold"),
+    legend.text = element_text(size=13),
+    plot.title = element_text(size=15, face="bold"),
+    plot.subtitle = element_text(size=13),
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12),
+    axis.title.x = element_text(face="bold", size=13),
+    axis.title.y = element_text(face="bold", size=13)
+  )
+
+
+```
+
+## Boxplot
+
+```{r}
+#| code-fold: true
+#| fig-width: 7
+#| fig-align: center
+
+ggplot(data = datos, aes(x = "", y = porcentaje_de_la_poblacion_derechohabiente_en_el_imss)) +
+    geom_boxplot(
+    fill = "#4A90E2",           # Color de relleno
+    color = "#2C5F7A",          # Color del borde más oscuro
+    alpha = 0.8,                # Transparencia
+    outlier.color = "#E74C3C",  # Color rojo para outliers
+    outlier.size = 2.5,         # Tamaño de outliers
+    outlier.alpha = 0.7,        # Transparencia de outliers
+    width = 0.5,                # Ancho del boxplot
+    notch = TRUE,               # Muescas para intervalo de confianza
+    notchwidth = 0.7            # Ancho de las muescas
+  ) +
+  geom_jitter(alpha = 0.3, color = "#34495E", size = 1.5, width = 0.1) +
+  scale_y_continuous(breaks = pretty_breaks(n = 8), labels = function(x) paste(x, "%")) +
+  labs(title = "Derechohabientes IMSS (%)", 
+  subtitle = "Estado de Jalisco",
+  y = "Derechohabientes (%)",
+  x = "")+
+  theme_bw()+
+  theme(
+    legend.title = element_text(size=13, face="bold"),
+    legend.text = element_text(size=13),
+    plot.title = element_text(size=15, face="bold"),
+    plot.subtitle = element_text(size=13),
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12),
+    axis.title.x = element_text(face="bold", size=13),
+    axis.title.y = element_text(face="bold", size=13),
+    panel.grid.major.y = element_line(color = "#ECF0F1", linewidth = 0.5,
+      linetype = "dashed"),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.background = element_rect(fill = "#FAFAFA", color = NA),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+```
+
+## Gráfico de violín
+
+```{r}
+#| code-fold: true
+#| fig-width: 7
+#| fig-align: center
+
+ggplot(data = datos, aes(x = "", y = porcentaje_de_la_poblacion_derechohabiente_en_el_imss)) +
+    geom_violin(fill = "#4A90E2", color = "#2C5F7A", alpha = 0.8,
+    trim = ,               # No recortar las colas
+    scale = "width", width = 0.8, linewidth = 0.8) +
+    geom_boxplot( width = 0.15, fill = "white", color = "#2C5F7A", alpha = 0.9,
+    outlier.color = "#E74C3C", outlier.size = 1.5, outlier.alpha = 0.8, notch = FALSE) +
+  stat_summary(fun = median, geom = "point", shape = 21, size = 3, fill = "white",
+  color = "#2C5F7A", stroke = 1.5) +
+  geom_jitter(alpha = 0.2, color = "#34495E", size = 0.8, width = 0.05) +
+  scale_y_continuous(breaks = pretty_breaks(n = 8), labels = function(x) paste(x, "%")) +
+  labs(title = "Derechohabientes IMSS (%)", 
+  subtitle = "Estado de Jalisco",
+  y = "Derechohabientes (%)",
+  x = "")+
+  theme_bw()+
+  theme(
+    legend.title = element_text(size=13, face="bold"),
+    legend.text = element_text(size=13),
+    plot.title = element_text(size=15, face="bold"),
+    plot.subtitle = element_text(size=13),
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12),
+    axis.title.x = element_text(face="bold", size=13),
+    axis.title.y = element_text(face="bold", size=13),
+    panel.grid.major.y = element_line(color = "#ECF0F1", linewidth = 0.5,
+      linetype = "dashed"),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.background = element_rect(fill = "#FAFAFA", color = NA),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+  
+```
+
+## Q-Q Plot (comparación de cuantiles)
+
+```{r}
+#| code-fold: true
+#| fig-width: 7
+#| fig-align: center
+
+
+# Q-Q Plot básico para normalidad
+ggplot(data = datos, aes(sample = porcentaje_de_la_poblacion_derechohabiente_en_el_imss)) +
+    stat_qq(color = "#4A90E2", size = 2, alpha = 0.7) +
+    stat_qq_line(color = "#E74C3C", linewidth = 1, linetype = "dashed") +
+    scale_x_continuous(name = "Cuantiles Teóricos (Distribución Normal)",
+    breaks = pretty_breaks(n = 6)) +
+    scale_y_continuous(name = "Cuantiles Muestrales (Derechohabientes IMSS %)",
+    breaks = pretty_breaks(n = 6),
+    labels = function(x) paste(x, "%")) +
+    labs(title = "Gráfico Q-Q para Normalidad",
+    subtitle = "Derechohabientes IMSS (%) - Jalisco") +
+    theme_bw()+
+    theme(
+    legend.title = element_text(size=13, face="bold"),
+    legend.text = element_text(size=13),
+    plot.title = element_text(size=15, face="bold"),
+    plot.subtitle = element_text(size=13),
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12),
+    axis.title.x = element_text(face="bold", size=13),
+    axis.title.y = element_text(face="bold", size=13),
+    panel.grid.major.y = element_line(color = "#ECF0F1", linewidth = 0.5,
+      linetype = "dashed"),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.background = element_rect(fill = "#FAFAFA", color = NA),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+  
+
+
+```
+
+# Población total
+
+```{r}
+#| code-fold: true
+#| fig-width: 8
+#| fig-align: center
+
+
+ggplot(datos) +
+  geom_sf(aes(fill = poblacion_total), color = "white", size = 0.1) +
+  scale_fill_viridis_c(
+    name = "Población",
+    trans = "log10",
+    labels = scales::comma_format()
+  ) +
+  labs(
+    title = "Población de los Municipios de Jalisco",
+    caption = "Fuente: INEGI - Marco Geoestadístico"
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 12),
+    plot.caption = element_text(size = 10),
+    legend.position = "right"
+  )
+
+```
+
+## Histograma
+
+```{r}
+#| code-fold: true
+#| fig-width: 7
+#| fig-align: center
+
+ggplot(datos) +
+  geom_histogram(aes(poblacion_total), color="black", fill = "olivedrab", boundary=min(datos$poblacion_total), bins=15) +
+  labs(
+    title = "Población",
+    x = "Población", y = "Frecuencia"
+  ) +
+  scale_x_log10(breaks = c(5000, 10000, 100000, 1e6), labels = scales::comma_format()) +  
+  theme_bw()+
+  theme(
+    legend.title = element_text(size=13, face="bold"),
+    legend.text = element_text(size=13),
+    plot.title = element_text(size=15, face="bold"),
+    plot.subtitle = element_text(size=13),
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12),
+    axis.title.x = element_text(face="bold", size=13),
+    axis.title.y = element_text(face="bold", size=13)
+  )
+
+```
+
+## Gráfica de densidad
+
+```{r}
+#| code-fold: true
+#| fig-width: 7
+#| fig-align: center
+
+ggplot(datos) +
+  geom_density(aes(poblacion_total), color="black", fill = "firebrick", alpha=0.6) +
+  labs(
+    title = "Distribución Población",
+    x = "Personas", y = "Densidad"
+  ) +
+  scale_x_log10(breaks = c(5000, 10000, 100000, 1e6), labels = scales::comma_format()) + 
+  theme_bw()+
+  theme(
+    legend.title = element_text(size=13, face="bold"),
+    legend.text = element_text(size=13),
+    plot.title = element_text(size=15, face="bold"),
+    plot.subtitle = element_text(size=13),
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12),
+    axis.title.x = element_text(face="bold", size=13),
+    axis.title.y = element_text(face="bold", size=13)
+  )
+
+
+```
+
+## Boxplot
+
+```{r}
+#| code-fold: true
+#| fig-width: 7
+#| fig-align: center
+
+ggplot(data = datos, aes(x = "", y = poblacion_total)) +
+    geom_boxplot(
+    fill = "#4A90E2",           # Color de relleno
+    color = "#2C5F7A",          # Color del borde más oscuro
+    alpha = 0.8,                # Transparencia
+    outlier.color = "#E74C3C",  # Color rojo para outliers
+    outlier.size = 2.5,         # Tamaño de outliers
+    outlier.alpha = 0.7,        # Transparencia de outliers
+    width = 0.5,                # Ancho del boxplot
+    notch = TRUE,               # Muescas para intervalo de confianza
+    notchwidth = 0.7            # Ancho de las muescas
+  ) +
+  geom_jitter(alpha = 0.3, color = "#34495E", size = 1.5, width = 0.1) +
+  scale_y_log10(breaks = c(5000, 10000, 100000, 1e6), labels = scales::comma_format()) +
+  labs(title = "Distribución Población", 
+  subtitle = "Estado de Jalisco",
+  y = "Personas",
+  x = "")+
+  theme_bw()+
+  theme(
+    legend.title = element_text(size=13, face="bold"),
+    legend.text = element_text(size=13),
+    plot.title = element_text(size=15, face="bold"),
+    plot.subtitle = element_text(size=13),
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12),
+    axis.title.x = element_text(face="bold", size=13),
+    axis.title.y = element_text(face="bold", size=13),
+    panel.grid.major.y = element_line(color = "#ECF0F1", linewidth = 0.5,
+      linetype = "dashed"),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.background = element_rect(fill = "#FAFAFA", color = NA),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+```
+
+## Gráfico de violín
+
+```{r}
+#| code-fold: true
+#| fig-width: 7
+#| fig-align: center
+
+ggplot(data = datos, aes(x = "", y = poblacion_total)) +
+    geom_violin(fill = "#4A90E2", color = "#2C5F7A", alpha = 0.8,
+    trim = FALSE,               # No recortar las colas
+    scale = "width", width = 0.8, linewidth = 0.8) +
+    geom_boxplot( width = 0.15, fill = "white", color = "#2C5F7A", alpha = 0.9,
+    outlier.color = "#E74C3C", outlier.size = 1.5, outlier.alpha = 0.8, notch = FALSE) +
+  stat_summary(fun = median, geom = "point", shape = 21, size = 3, fill = "white",
+  color = "#2C5F7A", stroke = 1.5) +
+  geom_jitter(alpha = 0.2, color = "#34495E", size = 0.8, width = 0.05) +
+  scale_y_log10(breaks = c(5000, 10000, 100000, 1e6), labels = scales::comma_format()) +
+  labs(title = "Distribución Población", 
+  subtitle = "Estado de Jalisco",
+  y = "Personas",
+  x = "")+
+  theme_bw()+
+  theme(
+    legend.title = element_text(size=13, face="bold"),
+    legend.text = element_text(size=13),
+    plot.title = element_text(size=15, face="bold"),
+    plot.subtitle = element_text(size=13),
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12),
+    axis.title.x = element_text(face="bold", size=13),
+    axis.title.y = element_text(face="bold", size=13),
+    panel.grid.major.y = element_line(color = "#ECF0F1", linewidth = 0.5,
+      linetype = "dashed"),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.background = element_rect(fill = "#FAFAFA", color = NA),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+  
+```
+
+
+
